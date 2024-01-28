@@ -9,7 +9,7 @@ public class MainFrame extends JFrame {
         // Left Panel with Scrollbar
         LeftPanel leftPanel = new LeftPanel();
         leftPanel.setPreferredSize(new Dimension(210, 100)); // Set preferred width to 400
-        int leftPanelPrefferedWidth = 210;
+        int leftPanelPreferredWidth = 210;
         JScrollPane scrollPane = new JScrollPane(leftPanel);
         scrollPane.setMaximumSize(new Dimension(400, Integer.MAX_VALUE)); // Set maximum width to 400
     
@@ -26,10 +26,12 @@ public class MainFrame extends JFrame {
     
         // Split Pane to combine Left and Main Panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, mainPanel);
-    
+
+        splitPane.setDividerLocation(leftPanelPreferredWidth);
+
         expandButton.addActionListener(e -> {
             if (splitPane.getDividerLocation() < 50) {
-                splitPane.setDividerLocation(leftPanelPrefferedWidth); // Expand
+                splitPane.setDividerLocation(leftPanelPreferredWidth); // Expand
                 expandButton.setText("<"); // Change button text to "<"
             } else {
                 splitPane.setDividerLocation(0); // Collapse
