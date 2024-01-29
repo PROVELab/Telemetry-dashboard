@@ -1,4 +1,6 @@
-Shynn Sensor, green
-Shynn Emotional Sensor, red
-Shynn Likes Men Sensor, green
-Shynn Gaydar, yellow 
+Test Sensor1, green
+Test Sensor2, green
+Test Sensor3, yellow
+Test Sensor4, yellow
+Test Sensor5, red
+Test Sensor6, red
