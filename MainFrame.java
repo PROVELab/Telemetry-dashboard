@@ -18,11 +18,28 @@ public class MainFrame extends JFrame {
     
         // Create expand/collapse button
         JButton expandButton = new JButton("<");
-        expandButton.setPreferredSize(new Dimension(40, 40)); // Set button size
+        Dimension buttonSize = new Dimension(37, 37); // Set button size
+        expandButton.setPreferredSize(buttonSize);
+        expandButton.setMinimumSize(buttonSize);
+        expandButton.setMaximumSize(buttonSize);
+
+        // Create a button to toggle night mode
+        JButton nightModeButton = new JButton(MainApp.getNightModeIcon());
+        nightModeButton.addActionListener(e -> {
+            MainApp.toggleNightMode();
+            nightModeButton.setIcon(MainApp.getNightModeIcon()); // Update the button icon
+        });
+
+        // Add the button to the frame
+        add(nightModeButton, BorderLayout.NORTH);
     
         // Create a panel for the button with a flow layout aligned to the right
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+
         buttonPanel.add(expandButton);
+        buttonPanel.add(Box.createVerticalStrut(10)); // Add some space between the buttons
+        buttonPanel.add(nightModeButton);
     
         // Split Pane to combine Left and Main Panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, mainPanel);
@@ -47,6 +64,10 @@ public class MainFrame extends JFrame {
         // Set layout and add split pane panel to the frame
         setLayout(new BorderLayout());
         add(splitPanePanel, BorderLayout.CENTER);
+    }
+
+    public static Panel getMainPanel() {
+        return null;
     }
     
 }
