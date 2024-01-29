@@ -4,6 +4,7 @@ import java.awt.*;
 public class MainFrame extends JFrame {
 
     public MainFrame() {
+        //Title for App
         super("Telemetry Dashboard");
     
         // Left Panel with Scrollbar
@@ -16,7 +17,7 @@ public class MainFrame extends JFrame {
         // Main Panel with Graph Components
         MainPanel mainPanel = new MainPanel();
     
-        // Create expand/collapse button
+        // Create expand/collapse button for the Left Panel
         JButton expandButton = new JButton("<");
         Dimension buttonSize = new Dimension(37, 37); // Set button size
         expandButton.setPreferredSize(buttonSize);
@@ -37,6 +38,7 @@ public class MainFrame extends JFrame {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
+        //Add the buttons to the button panel
         buttonPanel.add(expandButton);
         buttonPanel.add(Box.createVerticalStrut(10)); // Add some space between the buttons
         buttonPanel.add(nightModeButton);
@@ -46,6 +48,7 @@ public class MainFrame extends JFrame {
 
         splitPane.setDividerLocation(leftPanelPreferredWidth);
 
+        //Logic for Expand/Collapse button
         expandButton.addActionListener(e -> {
             if (splitPane.getDividerLocation() < 50) {
                 splitPane.setDividerLocation(leftPanelPreferredWidth); // Expand
@@ -64,10 +67,6 @@ public class MainFrame extends JFrame {
         // Set layout and add split pane panel to the frame
         setLayout(new BorderLayout());
         add(splitPanePanel, BorderLayout.CENTER);
-    }
-
-    public static Panel getMainPanel() {
-        return null;
     }
     
 }

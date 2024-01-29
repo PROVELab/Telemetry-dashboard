@@ -5,6 +5,8 @@ import org.jfree.chart.*;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.*;
 
 public class MainPanel extends JPanel {
 
@@ -26,7 +28,7 @@ public class MainPanel extends JPanel {
         dataset3 = new DefaultCategoryDataset();
         dataset4 = new DefaultCategoryDataset();
 
-        // Create charts
+        // Create default charts
         JFreeChart lineChart1 = createChart(dataset1, "Sensor Data 1");
         JFreeChart lineChart2 = createChart(dataset2, "Sensor Data 2");
         JFreeChart lineChart3 = createChart(dataset3, "Sensor Data 3");
@@ -49,8 +51,37 @@ public class MainPanel extends JPanel {
         add(chartPanel2);
         add(chartPanel3);
         add(chartPanel4);
+
+        // Create a DropTarget and DropTargetListener
+        DropTargetListener dtl = new DropTargetAdapter() {
+            public void drop(DropTargetDropEvent dtde) {
+                try {
+                    // Get the dropped data (currently fetching name of sensor)
+                    String droppedData = (String) dtde.getTransferable().getTransferData(DataFlavor.stringFlavor);
+        
+                    // Get the chart panel where the data was dropped
+                    ChartPanel droppedChartPanel = (ChartPanel) dtde.getDropTargetContext().getComponent();
+        
+                    // Update the chart with the dropped data
+                    JFreeChart chart = droppedChartPanel.getChart();
+                    chart.setTitle(droppedData);
+        
+                    // Repaint the chart to apply the changes
+                    droppedChartPanel.repaint();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        
+        // Create a DropTarget for each chart panel and set the DropTarget of each chart panel
+        chartPanel1.setDropTarget(new DropTarget(chartPanel1, dtl));
+        chartPanel2.setDropTarget(new DropTarget(chartPanel2, dtl));
+        chartPanel3.setDropTarget(new DropTarget(chartPanel3, dtl));
+        chartPanel4.setDropTarget(new DropTarget(chartPanel4, dtl));
     }
 
+    //Chart Axis Labels and Frame
     private JFreeChart createChart(DefaultCategoryDataset dataset, String title) {
         return ChartFactory.createLineChart(
             title,
