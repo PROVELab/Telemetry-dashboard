@@ -7,6 +7,11 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.*;
+import java.text.SimpleDateFormat;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.Random;
 
 public class MainPanel extends JPanel {
 
@@ -20,6 +25,7 @@ public class MainPanel extends JPanel {
     private ChartPanel chartPanel4;
 
     public MainPanel() {
+        
         setLayout(new GridLayout(2, 2)); // Set layout to a 2x2 grid
 
         // Initialize datasets
@@ -79,6 +85,31 @@ public class MainPanel extends JPanel {
         chartPanel2.setDropTarget(new DropTarget(chartPanel2, dtl));
         chartPanel3.setDropTarget(new DropTarget(chartPanel3, dtl));
         chartPanel4.setDropTarget(new DropTarget(chartPanel4, dtl));
+
+        //Add sample data to the charts
+        Random random = new Random();
+        Timer timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Generate random data for each sensor
+                double sensorData1 = random.nextDouble();
+                double sensorData2 = random.nextDouble();
+                double sensorData3 = random.nextDouble();
+                double sensorData4 = random.nextDouble();
+        
+                // Get the current time as a string
+                String currentTime = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        
+                // Add the new data using the addData method
+                addData("Sensor 1", sensorData1, currentTime, 1);
+                addData("Sensor 2", sensorData2, currentTime, 2);
+                addData("Sensor 3", sensorData3, currentTime, 3);
+                addData("Sensor 4", sensorData4, currentTime, 4);
+            }
+        });
+        
+        // Start the timer
+        timer.start();
     }
 
     //Chart Axis Labels and Frame
@@ -92,6 +123,7 @@ public class MainPanel extends JPanel {
             true, true, false);
     }
 
+    //Method to add data to the datasets
     public void addData(String seriesName, double value, String category, int chartNumber) {
         switch (chartNumber) {
             case 1:
