@@ -28,8 +28,10 @@ public class MainApp {
         try {
             if (isNightMode) {
                 UIManager.setLookAndFeel(new FlatLightLaf());
+                MainPanel.lightenCharts();
             } else {
                 UIManager.setLookAndFeel(new FlatDarkLaf());
+                MainPanel.darkenCharts();
             }
             isNightMode = !isNightMode;
             SwingUtilities.updateComponentTreeUI(MainFrame.getFrames()[0]);
