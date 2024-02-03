@@ -2,7 +2,13 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 
 import org.jfree.chart.*;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -10,6 +16,8 @@ import java.awt.dnd.*;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -23,6 +31,8 @@ public class MainPanel extends JPanel {
     private ChartPanel chartPanel2;
     private ChartPanel chartPanel3;
     private ChartPanel chartPanel4;
+    private static List<JFreeChart> charts = new ArrayList<>();
+
 
     public MainPanel() {
         
@@ -39,6 +49,10 @@ public class MainPanel extends JPanel {
         JFreeChart lineChart2 = createChart(dataset2, "Sensor Data 2");
         JFreeChart lineChart3 = createChart(dataset3, "Sensor Data 3");
         JFreeChart lineChart4 = createChart(dataset4, "Sensor Data 4");
+        charts.add(lineChart1);
+        charts.add(lineChart2);
+        charts.add(lineChart3);
+        charts.add(lineChart4);
 
         // Create chart panels
         chartPanel1 = new ChartPanel(lineChart1);
@@ -107,6 +121,8 @@ public class MainPanel extends JPanel {
                 addData("Sensor 4", sensorData4, currentTime, 4);
             }
         });
+
+        darkenCharts(); // Set the initial color of the charts to dark mode
         
         // Start the timer
         timer.start();
@@ -138,6 +154,49 @@ public class MainPanel extends JPanel {
             case 4:
                 dataset4.addValue(value, seriesName, category);
                 break;
+        }
+    }
+
+    public static void lightenCharts() {
+        for (JFreeChart chart : charts) {
+            chart.getTitle().setPaint(Color.BLACK);
+            chart.setBackgroundPaint(Color.WHITE);
+            chart.getPlot().setBackgroundPaint(Color.WHITE);
+            chart.getLegend().setBackgroundPaint(Color.WHITE);
+            chart.getLegend().setItemPaint(Color.DARK_GRAY);
+            CategoryPlot plot = chart.getCategoryPlot();
+
+            // Change the color of the tick labels on the X axis
+            CategoryAxis xAxis = plot.getDomainAxis();
+            xAxis.setTickLabelPaint(Color.BLACK);
+            xAxis.setLabelPaint(Color.BLACK);
+
+            // Change the color of the tick labels on the Y axis
+            ValueAxis yAxis = plot.getRangeAxis();
+            yAxis.setTickLabelPaint(Color.BLACK);
+            yAxis.setLabelPaint(Color.BLACK);
+        }
+    }
+
+    public static void darkenCharts() {
+        for (JFreeChart chart : charts) {
+            chart.getTitle().setPaint(Color.WHITE);
+            chart.setBackgroundPaint(Color.DARK_GRAY);
+            chart.getPlot().setBackgroundPaint(Color.DARK_GRAY);
+            chart.getLegend().setBackgroundPaint(Color.DARK_GRAY);
+            chart.getLegend().setItemPaint(Color.WHITE);
+            CategoryPlot plot = chart.getCategoryPlot();
+
+            // Change the color of the tick labels on the X axis
+            CategoryAxis xAxis = plot.getDomainAxis();
+            xAxis.setTickLabelPaint(Color.WHITE);
+            xAxis.setLabelPaint(Color.WHITE);
+
+
+            // Change the color of the tick labels on the Y axis
+            ValueAxis yAxis = plot.getRangeAxis();
+            yAxis.setTickLabelPaint(Color.WHITE);
+            yAxis.setLabelPaint(Color.WHITE);
         }
     }
 }
