@@ -1,6 +1,6 @@
-Test Sensor1, green
-Test Sensor2, green
-Test Sensor3, yellow
-Test Sensor4, yellow
-Test Sensor5, red
-Test Sensor6, red
+Test Sensor1, 0.5-0.7, 0.3-0.9
+Test Sensor2, 0.5-0.7, 0.3-0.9
+Test Sensor3, 0.5-0.7, 0.3-0.9
+Test Sensor4, 0.5-0.7, 0.3-0.9
+Test Sensor5, 0.5-0.7, 0.3-0.9
+Test Sensor6, 0.5-0.7, 0.3-0.9

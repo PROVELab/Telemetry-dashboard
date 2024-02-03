@@ -1,13 +1,25 @@
 import javax.swing.*;
+
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.awt.dnd.*;
 import java.awt.image.BufferedImage;
 
 public class LeftPanel extends JPanel {
+
+    public record Sensor(String name, String range1, String range2) {}
+
+    private HashMap<String, Sensor> sensorMap = new HashMap<>();
+    private HashMap<Sensor, XYSeriesCollection> sensortoCollection = new HashMap<>();
+    private HashMap<Sensor, XYSeries> sensortoSeries = new HashMap<>();
+    private HashMap<String, JPanel> sensorStatus = new HashMap<>();
 
     public LeftPanel() {
         setLayout(new GridLayout(32, 1));
@@ -23,25 +35,20 @@ public class LeftPanel extends JPanel {
                 //Fetch the name from the txt input
                 String[] arr = line.split(",");
                 JLabel sensorLabel = new JLabel(arr[0]);
+                String range1 = arr[1];
+                String range2 = arr[2];
                 miniElement.add(sensorLabel, BorderLayout.CENTER);
-
-                //TODO: Eventually grab the acceptable range for each sensor and have the indicator change color if the data is out of range
 
                 //Status indicator to see if sensor is in the range
                 JPanel statusIndicator = new JPanel();
                 statusIndicator.setPreferredSize(new Dimension(25, 10)); // Set size
+                statusIndicator.setBackground(new Color(76, 175, 80)); // Set default color to green
+                sensorStatus.put(sensorLabel.getText(), statusIndicator);
 
-                // Set color based on status
-                if (line.contains("green")) {
-                    statusIndicator.setBackground(new Color(76, 175, 80)); // Subtle green
-                } else if (line.contains("yellow")) {
-                    statusIndicator.setBackground(new Color(255, 235, 59)); // Subtle yellow
-                } else if (line.contains("red")) {
-                    statusIndicator.setBackground(new Color(244, 67, 54)); // Subtle red
-                }
+                //Add the sensor to the sensor map
+                sensorMap.put(sensorLabel.getText(), new Sensor(sensorLabel.getText(), range1, range2));
 
                 miniElement.add(statusIndicator, BorderLayout.EAST);
-
                 add(miniElement);
 
                 //Make the sensors a drag source so someone can grab the sensor id/label from it
@@ -72,4 +79,31 @@ public class LeftPanel extends JPanel {
             e.printStackTrace();
         }
     }
+
+    //Getter methods to access the sensor maps
+    public HashMap<String, Sensor> getSensorMap() {
+        return sensorMap;
+    }
+
+    public HashMap<Sensor, XYSeriesCollection> getSensortoCollection() {
+        return sensortoCollection;
+    }
+
+    public HashMap<Sensor, XYSeries> getSensortoSeries() {
+        return sensortoSeries;
+    }
+
+    //Setter method to change the status indicator of the sensors
+    public void setStatusIndicator(Sensor sensor, Double data) {
+        if(data < Double.parseDouble(sensor.range1().split("-")[0]) || data > Double.parseDouble(sensor.range1().split("-")[1])){
+            sensorStatus.get(sensor.name).setBackground(new Color(255, 235, 59)); // Subtle yellow
+        }
+        if(data < Double.parseDouble(sensor.range2().split("-")[0]) || data > Double.parseDouble(sensor.range2().split("-")[1])) {
+            sensorStatus.get(sensor.name).setBackground(new Color(244, 67, 54)); // Subtle red
+        }
+        if(data > Double.parseDouble(sensor.range1().split("-")[0]) || data < Double.parseDouble(sensor.range1().split("-")[1])){
+            sensorStatus.get(sensor.name).setBackground(new Color(76, 175, 80)); // Subtle green
+        }
+    }
+
 }
