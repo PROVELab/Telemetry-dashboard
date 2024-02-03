@@ -4,17 +4,22 @@ import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.awt.dnd.*;
 import java.awt.image.BufferedImage;
 
 public class LeftPanel extends JPanel {
-
+    private ArrayList<String> arr = new ArrayList<>();
+    public String[] getSensors(){
+        return arr.toArray(new String[]{});
+    }
     public LeftPanel() {
         setLayout(new GridLayout(32, 1));
 
         // Read sensor data from the sensor.txt file
         try (BufferedReader reader = new BufferedReader(new FileReader("sensors.txt"))) {
             String line;
+            int i = 0;
             while ((line = reader.readLine()) != null) {
                 JPanel miniElement = new JPanel();
                 miniElement.setLayout(new BorderLayout());
@@ -22,6 +27,7 @@ public class LeftPanel extends JPanel {
  
                 //Fetch the name from the txt input
                 String[] arr = line.split(",");
+                this.arr.add(arr[0]);
                 JLabel sensorLabel = new JLabel(arr[0]);
                 miniElement.add(sensorLabel, BorderLayout.CENTER);
 

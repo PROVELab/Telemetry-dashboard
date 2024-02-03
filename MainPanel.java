@@ -1,16 +1,19 @@
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-
 import org.jfree.chart.*;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.util.HMSNumberFormat;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.*;
-import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
 
 public class MainPanel extends JPanel {
@@ -19,26 +22,34 @@ public class MainPanel extends JPanel {
     private DefaultCategoryDataset dataset2;
     private DefaultCategoryDataset dataset3;
     private DefaultCategoryDataset dataset4;
+
+    public HashMap<String, XYSeriesCollection> hmap = new HashMap<>();
+    public HashMap<String, XYSeries> seriesmap = new HashMap<>();
+
     private ChartPanel chartPanel1;
     private ChartPanel chartPanel2;
     private ChartPanel chartPanel3;
     private ChartPanel chartPanel4;
 
-    public MainPanel() {
+    public long startTime = 0;
+
+    public MainPanel(String[] sensors) {
         
         setLayout(new GridLayout(2, 2)); // Set layout to a 2x2 grid
 
-        // Initialize datasets
-        dataset1 = new DefaultCategoryDataset();
-        dataset2 = new DefaultCategoryDataset();
-        dataset3 = new DefaultCategoryDataset();
-        dataset4 = new DefaultCategoryDataset();
+        for (String s : sensors){
+            hmap.put(s, new XYSeriesCollection());
+            XYSeries ser = new XYSeries(s);
+            ser.setMaximumItemCount(20);
+            hmap.get(s).addSeries(ser);
+            seriesmap.put(s, ser);
+        }
 
         // Create default charts
-        JFreeChart lineChart1 = createChart(dataset1, "Sensor Data 1");
-        JFreeChart lineChart2 = createChart(dataset2, "Sensor Data 2");
-        JFreeChart lineChart3 = createChart(dataset3, "Sensor Data 3");
-        JFreeChart lineChart4 = createChart(dataset4, "Sensor Data 4");
+        JFreeChart lineChart1 = createChart(hmap.get("Test Sensor1"), "Test Sensor1");
+        JFreeChart lineChart2 = createChart(hmap.get("Test Sensor2"), "Test Sensor2");
+        JFreeChart lineChart3 = createChart(hmap.get("Test Sensor3"), "Test Sensor3");
+        JFreeChart lineChart4 = createChart(hmap.get("Test Sensor4"), "Test Sensor4");
 
         // Create chart panels
         chartPanel1 = new ChartPanel(lineChart1);
@@ -71,6 +82,8 @@ public class MainPanel extends JPanel {
                     // Update the chart with the dropped data
                     JFreeChart chart = droppedChartPanel.getChart();
                     chart.setTitle(droppedData);
+                    chart.getXYPlot().setDataset(hmap.get(droppedData));
+                    ((NumberAxis) (chart.getXYPlot().getDomainAxis())).setNumberFormatOverride(new HMSNumberFormat());
         
                     // Repaint the chart to apply the changes
                     droppedChartPanel.repaint();
@@ -88,33 +101,26 @@ public class MainPanel extends JPanel {
 
         //Add sample data to the charts
         Random random = new Random();
-        Timer timer = new Timer(1000, new ActionListener() {
+        Timer timer = new Timer(200, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Generate random data for each sensor
-                double sensorData1 = random.nextDouble();
-                double sensorData2 = random.nextDouble();
-                double sensorData3 = random.nextDouble();
-                double sensorData4 = random.nextDouble();
-        
-                // Get the current time as a string
-                String currentTime = new SimpleDateFormat("HH:mm:ss").format(new Date());
-        
-                // Add the new data using the addData method
-                addData("Sensor 1", sensorData1, currentTime, 1);
-                addData("Sensor 2", sensorData2, currentTime, 2);
-                addData("Sensor 3", sensorData3, currentTime, 3);
-                addData("Sensor 4", sensorData4, currentTime, 4);
+
+                for (String s : hmap.keySet()){
+                    System.out.println("Updating data: " + s);
+                    XYSeries series = seriesmap.get(s);
+                    series.add((double)(System.currentTimeMillis() - startTime)/1000, random.nextGaussian(5, 2));
+                }
             }
         });
         
         // Start the timer
         timer.start();
+        startTime = System.currentTimeMillis();
     }
 
     //Chart Axis Labels and Frame
-    private JFreeChart createChart(DefaultCategoryDataset dataset, String title) {
-        return ChartFactory.createLineChart(
+    private JFreeChart createChart(XYSeriesCollection dataset, String title) {
+        return ChartFactory.createXYLineChart(
             title,
             "Time",
             "Value",
