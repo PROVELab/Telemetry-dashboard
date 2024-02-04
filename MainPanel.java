@@ -1,20 +1,12 @@
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import org.jfree.chart.*;
-import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.AbstractRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.util.HMSNumberFormat;
-import org.jfree.chart.util.StrokeList;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -23,19 +15,17 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MainPanel extends JPanel {
-
-    private DefaultCategoryDataset dataset1;
-    private DefaultCategoryDataset dataset2;
-    private DefaultCategoryDataset dataset3;
-    private DefaultCategoryDataset dataset4;
 
     private ChartPanel chartPanel1;
     private ChartPanel chartPanel2;
@@ -124,8 +114,8 @@ public class MainPanel extends JPanel {
                     JFreeChart chart = droppedChartPanel.getChart();
                     chart.setTitle(droppedData);
                     chart.getXYPlot().setDataset(hmap.get(snameToObject.get(droppedData)));
-                    ((NumberAxis) (chart.getXYPlot().getDomainAxis())).setNumberFormatOverride(new HMSNumberFormat());
-
+                    ((NumberAxis) (chart.getXYPlot().getDomainAxis())).setNumberFormatOverride(NumberFormat.getNumberInstance());
+                    
                     Sensor s = snameToObject.get(droppedData);
                     chart.getXYPlot().clearRangeMarkers();
                     // add yellow ranges
@@ -166,6 +156,23 @@ public class MainPanel extends JPanel {
         });
 
         darkenCharts(); // Set the initial color of the charts to dark mode
+
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+        Runnable task = () -> {
+            try {
+                for (Sensor s : hmap.keySet()){
+                    XYSeries series = seriesmap.get(s);
+                    if (series != null && series.getItemCount() > 0) {
+                        LeftPanel.setStatusIndicator(s, series.getY(series.getItemCount()-1).doubleValue());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+        
+        executor.scheduleAtFixedRate(task, 0, 1, TimeUnit.SECONDS);
         
         // Start the timer
         timer.start();
@@ -200,6 +207,9 @@ public class MainPanel extends JPanel {
             ValueAxis yAxis = plot.getRangeAxis();
             yAxis.setTickLabelPaint(Color.BLACK);
             yAxis.setLabelPaint(Color.BLACK);
+
+            //Change the color of the line
+            chart.getXYPlot().getRendererForDataset(chart.getXYPlot().getDataset()).setSeriesPaint(0, Color.DARK_GRAY);
         }
     }
     public static void darkenCharts() {
@@ -221,6 +231,9 @@ public class MainPanel extends JPanel {
             ValueAxis yAxis = plot.getRangeAxis();
             yAxis.setTickLabelPaint(Color.WHITE);
             yAxis.setLabelPaint(Color.WHITE);
+
+            //Change the color of the line
+            chart.getXYPlot().getRendererForDataset(chart.getXYPlot().getDataset()).setSeriesPaint(0, Color.WHITE);
         }
     }
 }
