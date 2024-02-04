@@ -9,13 +9,14 @@ public class MainFrame extends JFrame {
     
         // Left Panel with Scrollbar
         LeftPanel leftPanel = new LeftPanel();
+        Sensor[] sensors = leftPanel.getSensors();
         leftPanel.setPreferredSize(new Dimension(210, 100)); // Set preferred width to 400
         int leftPanelPreferredWidth = 210;
         JScrollPane scrollPane = new JScrollPane(leftPanel);
         scrollPane.setMaximumSize(new Dimension(400, Integer.MAX_VALUE)); // Set maximum width to 400
     
         // Main Panel with Graph Components
-        MainPanel mainPanel = new MainPanel();
+        MainPanel mainPanel = new MainPanel(sensors);
     
         // Create expand/collapse button for the Left Panel
         JButton expandButton = new JButton("<");
