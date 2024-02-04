@@ -1,8 +1,4 @@
 import javax.swing.*;
-
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
@@ -38,7 +34,7 @@ public class LeftPanel extends JPanel {
     public Sensor[] getSensors(){
         return sensorList.toArray(new Sensor[]{});
     }
-    private HashMap<String, JPanel> sensorStatus = new HashMap<>();
+    private static HashMap<String, JPanel> sensorStatus = new HashMap<>();
 
     public LeftPanel() {
         setLayout(new GridLayout(32, 1));
@@ -103,15 +99,18 @@ public class LeftPanel extends JPanel {
     }
 
     //Setter method to change the status indicator of the sensors
-    public void setStatusIndicator(Sensor sensor, Double data) {
-        if(data < Double.parseDouble(sensor.range1().split("-")[0]) || data > Double.parseDouble(sensor.range1().split("-")[1])){
-            sensorStatus.get(sensor.name()).setBackground(new Color(255, 235, 59)); // Subtle yellow
-        }
-        if(data < Double.parseDouble(sensor.range2().split("-")[0]) || data > Double.parseDouble(sensor.range2().split("-")[1])) {
-            sensorStatus.get(sensor.name()).setBackground(new Color(244, 67, 54)); // Subtle red
-        }
-        if(data > Double.parseDouble(sensor.range1().split("-")[0]) || data < Double.parseDouble(sensor.range1().split("-")[1])){
+    public static void setStatusIndicator(Sensor sensor, Double data) {
+        double lowerLimit1 = sensor.getRange1()[0];
+        double upperLimit1 = sensor.getRange1()[1];
+        double lowerLimit2 = sensor.getRange2()[0];
+        double upperLimit2 = sensor.getRange2()[1];
+        
+        if (data >= lowerLimit1 && data <= upperLimit1) {
             sensorStatus.get(sensor.name()).setBackground(new Color(76, 175, 80)); // Subtle green
+        } else if (data >= lowerLimit2 && data <= upperLimit2) {
+            sensorStatus.get(sensor.name()).setBackground(new Color(255, 235, 59)); // Subtle yellow
+        } else {
+            sensorStatus.get(sensor.name()).setBackground(new Color(244, 67, 54)); // Subtle red
         }
     }
 
