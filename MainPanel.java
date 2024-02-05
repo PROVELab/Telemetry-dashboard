@@ -40,7 +40,7 @@ public class MainPanel extends JPanel {
     private HashMap<Sensor, XYSeries> seriesmap = new HashMap<>();
 
 
-    final int MAX_ELEMENTS_TO_SHOW = 10;
+    private static int MAX_ELEMENTS_TO_SHOW = 10;
     public long startTime = 0;
 
     public MainPanel(Sensor[] sensors) {
@@ -234,6 +234,19 @@ public class MainPanel extends JPanel {
 
             //Change the color of the line
             chart.getXYPlot().getRendererForDataset(chart.getXYPlot().getDataset()).setSeriesPaint(0, Color.WHITE);
+        }
+    }
+
+    public static void setMaxElementsToShow(int maxElementsToShow) {
+        MAX_ELEMENTS_TO_SHOW = maxElementsToShow;
+    }
+
+    public static void updateCharts() {
+        for (JFreeChart chart : charts) {
+            for (int i = 0; i < chart.getXYPlot().getDataset().getSeriesCount(); i++) {
+                XYSeries series = ((XYSeriesCollection) chart.getXYPlot().getDataset()).getSeries(i);
+                series.setMaximumItemCount(MAX_ELEMENTS_TO_SHOW);
+            }
         }
     }
 }
