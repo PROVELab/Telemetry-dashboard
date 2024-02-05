@@ -31,13 +31,16 @@ public class MainPanel extends JPanel {
     private ChartPanel chartPanel2;
     private ChartPanel chartPanel3;
     private ChartPanel chartPanel4;
-    private static List<JFreeChart> charts = new ArrayList<>();
-    private static List<JPanel> chartPanels = new ArrayList<>();
-    
-    private HashMap<String, Sensor> snameToObject = new HashMap<>();
 
-    private HashMap<Sensor, XYSeriesCollection> hmap = new HashMap<>();
-    private HashMap<Sensor, XYSeries> seriesmap = new HashMap<>();
+    public static JFreeChart temp_chart;
+
+    public static List<JFreeChart> charts = new ArrayList<>();
+    public static List<JPanel> chartPanels = new ArrayList<>();
+    
+    public static HashMap<String, Sensor> snameToObject = new HashMap<>();
+
+    public static HashMap<Sensor, XYSeriesCollection> hmap = new HashMap<>();
+    public static HashMap<Sensor, XYSeries> seriesmap = new HashMap<>();
 
 
     final int MAX_ELEMENTS_TO_SHOW = 10;
@@ -63,7 +66,10 @@ public class MainPanel extends JPanel {
         JFreeChart lineChart2 = createChart(hmap.get(snameToObject.get("Test Sensor2")), "Test Sensor2");
         JFreeChart lineChart3 = createChart(hmap.get(snameToObject.get("Test Sensor3")), "Test Sensor3");
         JFreeChart lineChart4 = createChart(hmap.get(snameToObject.get("Test Sensor4")), "Test Sensor4");
-        charts = Arrays.asList(new JFreeChart[]{lineChart1, lineChart2, lineChart3, lineChart4});
+
+        temp_chart = createChart(hmap.get(snameToObject.get("Test Sensor1")), "Test Sensor1");
+
+        charts = Arrays.asList(new JFreeChart[]{lineChart1, lineChart2, lineChart3, lineChart4, temp_chart});
         charts.stream().forEach((r)->{
                 r.getXYPlot().getRendererForDataset(r.getXYPlot().getDataset()).setSeriesPaint(0, Color.WHITE);
                 r.getXYPlot().getRenderer().setDefaultStroke(new BasicStroke(4.0f));

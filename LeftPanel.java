@@ -1,12 +1,24 @@
 import javax.swing.*;
+
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.awt.dnd.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 record Sensor(String name, String range1, String range2) {
@@ -28,7 +40,7 @@ record Sensor(String name, String range1, String range2) {
     }
 }
 public class LeftPanel extends JPanel {
-
+    boolean hovered = false;
 
     private ArrayList<Sensor> sensorList = new ArrayList<>();
     public Sensor[] getSensors(){
@@ -68,6 +80,91 @@ public class LeftPanel extends JPanel {
 
                 miniElement.add(statusIndicator, BorderLayout.EAST);
                 add(miniElement);
+                
+                JPopupMenu jpm = new JPopupMenu(){
+                    @Override
+                    public Dimension getPreferredSize() {
+                        return new Dimension(300, 300);
+                    }
+                };
+
+                miniElement.addMouseListener(new MouseListener() {
+                    public int x = 0;
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if(e.getClickCount()==2){
+                            ChartPanel cp = reconstructChart(miniElement);
+                            MainPanel.chartPanels.get(x).removeAll();
+                            ((ChartPanel)MainPanel.chartPanels.get(x)).setChart(cp.getChart());
+                            MainPanel.chartPanels.get(x).repaint();
+                        }
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        // TODO Auto-generated method stub
+                        jpm.setVisible(false);
+                        jpm.removeAll();
+                        jpm.setMaximumSize(new Dimension(100, 100));
+                        jpm.setMinimumSize(new Dimension(100, 100));
+
+                        ChartPanel cp = reconstructChart(miniElement);
+                        if (cp != null){
+                            jpm.add(cp);
+                            jpm.setVisible(true);
+                            hovered=true;
+                        }                 
+                    }
+
+                    public static ChartPanel reconstructChart(JPanel miniElement) {
+                        for (Component c : miniElement.getComponents()){
+                            if (c instanceof JLabel){
+                                Sensor s = MainPanel.snameToObject.get(((JLabel) c).getText());
+                                JFreeChart chart = MainPanel.temp_chart;
+
+                                chart.setTitle(s.name());
+                                chart.getXYPlot().setDataset(MainPanel.hmap.get(s));
+                                ((NumberAxis) (chart.getXYPlot().getDomainAxis())).setNumberFormatOverride(NumberFormat.getNumberInstance());
+                                
+                                chart.getXYPlot().clearRangeMarkers();
+                                // add yellow ranges
+                                for (Double d : s.getRange1()){
+                                    ValueMarker marker = new ValueMarker(d);
+                                    marker.setPaint(Color.YELLOW);
+                                    chart.getXYPlot().addRangeMarker(marker);
+                                }
+                    
+                                for (Double d : s.getRange2()){
+                                    ValueMarker marker = new ValueMarker(d);
+                                    marker.setPaint(Color.RED);
+                                    chart.getXYPlot().addRangeMarker(marker);
+                                }
+                                return new ChartPanel(chart);
+                            }
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        jpm.setVisible(false);
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {}
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {}
+                });
+                this.addMouseMotionListener(new MouseMotionListener() {
+                    @Override
+                    public void mouseDragged(MouseEvent arg0) {}
+                    @Override
+                    public void mouseMoved(MouseEvent arg0) {
+                        hovered = false;
+                        jpm.setVisible(false);
+                    }
+                });
 
                 //Make the sensors a drag source so someone can grab the sensor id/label from it
                 DragSource ds = new DragSource();
