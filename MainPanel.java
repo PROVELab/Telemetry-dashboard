@@ -15,6 +15,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.ArrayList;
@@ -38,6 +41,7 @@ public class MainPanel extends JPanel {
 
     private HashMap<Sensor, XYSeriesCollection> hmap = new HashMap<>();
     private HashMap<Sensor, XYSeries> seriesmap = new HashMap<>();
+    private static final double currTime = System.currentTimeMillis();
 
 
     private static int MAX_ELEMENTS_TO_SHOW = 10;
@@ -150,7 +154,10 @@ public class MainPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 for (Sensor s : hmap.keySet()){
                     XYSeries series = seriesmap.get(s);
-                    series.add((double)(System.currentTimeMillis() - startTime)/1000, random.nextGaussian(0.5, 0.2));
+                    double data = random.nextGaussian(0.5, 0.2);
+                    series.add((double)(System.currentTimeMillis() - startTime)/1000, data);
+                    //Send data to update the CSV
+                    updateCSV(data, s, currTime);
                 }
             }
         });
@@ -247,6 +254,24 @@ public class MainPanel extends JPanel {
                 XYSeries series = ((XYSeriesCollection) chart.getXYPlot().getDataset()).getSeries(i);
                 series.setMaximumItemCount(MAX_ELEMENTS_TO_SHOW);
             }
+        }
+    }
+
+    public void updateCSV(double data, Sensor s, double currTime){
+        File f = new File("data/" + s.name() + ".csv");
+        try {
+            if (!f.exists()){
+                f.createNewFile();
+            }
+            FileWriter writer = new FileWriter(f, true);
+            writer.append(String.valueOf(Math.floorDiv( (long) (System.currentTimeMillis() - MainPanel.currTime), 1000)));
+            writer.append(",");
+            writer.append(String.valueOf(data));
+            writer.append(",\n");
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
