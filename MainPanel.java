@@ -258,8 +258,14 @@ public class MainPanel extends JPanel {
     }
 
     public void updateCSV(double data, Sensor s, double currTime){
-        File f = new File("data/" + s.name() + ".csv");
         try {
+            File z = new File("data/");
+
+            if (!z.exists()) {
+                z.mkdir();
+            }
+
+            File f = new File("data/" + s.name() + ".csv");
             if (!f.exists()){
                 f.createNewFile();
             }
