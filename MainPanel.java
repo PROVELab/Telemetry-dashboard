@@ -63,16 +63,21 @@ public class MainPanel extends JPanel {
         }
 
         // Create default charts
-        JFreeChart lineChart1 = createChart(hmap.get(snameToObject.get("Test Sensor1")), "Test Sensor1");
-        JFreeChart lineChart2 = createChart(hmap.get(snameToObject.get("Test Sensor2")), "Test Sensor2");
-        JFreeChart lineChart3 = createChart(hmap.get(snameToObject.get("Test Sensor3")), "Test Sensor3");
-        JFreeChart lineChart4 = createChart(hmap.get(snameToObject.get("Test Sensor4")), "Test Sensor4");
+        var keys = snameToObject.keySet().toArray(new String[]{});
+        int key_ind = 0;
+        if (keys.length < 4){
+            throw new IllegalArgumentException("Too few sensors");
+        }
+        JFreeChart lineChart1 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+        JFreeChart lineChart2 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+        JFreeChart lineChart3 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+        JFreeChart lineChart4 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+
         charts = Arrays.asList(new JFreeChart[]{lineChart1, lineChart2, lineChart3, lineChart4});
         charts.stream().forEach((r)->{
                 r.getXYPlot().getRendererForDataset(r.getXYPlot().getDataset()).setSeriesPaint(0, Color.WHITE);
                 r.getXYPlot().getRenderer().setDefaultStroke(new BasicStroke(4.0f));
                 ((AbstractRenderer) r.getXYPlot().getRenderer()).setAutoPopulateSeriesStroke(false);
-
 
                 r.getXYPlot().getRangeAxis().setRange(0, 1);
                 for (Double d : snameToObject.get(r.getTitle().getText()).getRange1()){

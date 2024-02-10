@@ -42,7 +42,6 @@ public class LeftPanel extends JPanel {
         // Read sensor data from the sensor.txt file
         try (BufferedReader reader = new BufferedReader(new FileReader("sensors.txt"))) {
             String line;
-            int i = 0;
             while ((line = reader.readLine()) != null) {
                 JPanel miniElement = new JPanel();
                 miniElement.setLayout(new BorderLayout());
@@ -55,7 +54,7 @@ public class LeftPanel extends JPanel {
                 JLabel sensorLabel = new JLabel(arr[0]);
                 String range1 = arr[1];
                 String range2 = arr[2];
-
+                
                 Sensor s = new Sensor(sensorLabel.getText(), range1, range2);
                 sensorList.add(s);
                 miniElement.add(sensorLabel, BorderLayout.CENTER);
