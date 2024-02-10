@@ -1,9 +1,9 @@
-Mr. Tory Sensor, 0.5-0.7, 0.4-0.9
-Mickey Lin Sensor, 0.4-0.6, 0.2-0.7
-Mama Duck Shynn Sensor, 0.3-0.5, 0.1-0.9
-Master Zaid Sensor, 0.5-0.7, 0.3-0.9
-Alexander the Great Sensor, 0.5-0.7, 0.3-0.9
-Rockety Rohan Sensor, 0.5-0.7, 0.3-0.9
-Sleepy Spruha Sensor, 0.1-0.9, 0.6-0.7
-Sleeper Agent Carter Sensor, 0.3-0.7, 0.1-0.8
-VERY IMPORTANT SENSOR, 0.3-0.7, 0.6-1.0
+Mr. Tory Sensor, 0.5-0.7, 0.4-0.9, 0
+Mickey Lin Sensor, 0.4-0.6, 0.2-0.7, 0
+Mama Duck Shynn Sensor, 0.3-0.5, 0.1-0.9, 0
+Master Zaid Sensor, 0.5-0.7, 0.3-0.9, 0
+Alexander the Great Sensor, 0.5-0.7, 0.3-0.9, 0
+Rockety Rohan Sensor, 0.5-0.7, 0.3-0.9, 0
+Sleepy Spruha Sensor, 0.1-0.9, 0.6-0.7, 0
+Sleeper Agent Carter Sensor, 0.3-0.7, 0.1-0.8, 0
+VERY IMPORTANT SENSOR, 0.3-0.7, 0.6-1.0, 1
