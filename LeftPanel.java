@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.awt.dnd.*;
 import java.awt.image.BufferedImage;
 
-record Sensor(String name, String range1, String range2) {
+record Sensor(String name, String range1, String range2, boolean isCritical) {
     Double[] getRange1(){
         Double d[]  = new Double[2];
         int i = 0;
@@ -54,8 +54,12 @@ public class LeftPanel extends JPanel {
                 JLabel sensorLabel = new JLabel(arr[0]);
                 String range1 = arr[1];
                 String range2 = arr[2];
-                
-                Sensor s = new Sensor(sensorLabel.getText(), range1, range2);
+                String critical = arr[3];
+                critical = critical.strip();
+
+                boolean isCritical = (Integer.parseInt(critical) == 1) ? true : false;
+
+                Sensor s = new Sensor(sensorLabel.getText(), range1, range2, isCritical);
                 sensorList.add(s);
                 miniElement.add(sensorLabel, BorderLayout.CENTER);
 
@@ -110,6 +114,9 @@ public class LeftPanel extends JPanel {
             sensorStatus.get(sensor.name()).setBackground(new Color(255, 235, 59)); // Subtle yellow
         } else {
             sensorStatus.get(sensor.name()).setBackground(new Color(244, 67, 54)); // Subtle red
+            if (sensor.isCritical()) {
+                JOptionPane.showMessageDialog(null, sensor.name() + " is in critical range!", "Critical Alert", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

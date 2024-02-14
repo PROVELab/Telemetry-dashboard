@@ -159,7 +159,7 @@ public class MainPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 for (Sensor s : hmap.keySet()){
                     XYSeries series = seriesmap.get(s);
-                    double data = random.nextGaussian(0.5, 0.2);
+                    double data = random.nextGaussian(0.5, 0.01);
                     series.add((double)(System.currentTimeMillis() - startTime)/1000, data);
                     //Send data to update the CSV
                     updateCSV(data, s, currTime);
