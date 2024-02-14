@@ -279,7 +279,6 @@ public class MainPanel extends JPanel {
             writer.append(",");
             writer.append(String.valueOf(data));
             writer.append(",\n");
-            writer.flush();
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
