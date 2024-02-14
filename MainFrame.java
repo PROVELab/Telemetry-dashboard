@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 
 public class MainFrame extends JFrame {
@@ -43,6 +45,7 @@ public class MainFrame extends JFrame {
         buttonPanel.add(expandButton);
         buttonPanel.add(Box.createVerticalStrut(10)); // Add some space between the buttons
         buttonPanel.add(nightModeButton);
+        buttonPanel.add(Box.createVerticalStrut(10)); // Add some space between the buttons
     
         // Split Pane to combine Left and Main Panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, mainPanel);
@@ -59,7 +62,50 @@ public class MainFrame extends JFrame {
                 expandButton.setText(">"); // Change button text to ">"
             }
         });
-    
+
+        // Create the slider
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 100, 10);
+        slider.setMajorTickSpacing(10);
+        slider.setMinorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.setPreferredSize(new Dimension(300, 50)); // Set a preferred size for the slider
+
+        slider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                JSlider source = (JSlider)e.getSource();
+                if (!source.getValueIsAdjusting()) {
+                    MainPanel.setMaxElementsToShow(source.getValue());
+                    MainPanel.updateCharts();
+                }
+            }
+        });
+
+        // Create a JDialog to act as a pop-up panel for the slider
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Adjust Slider");
+        dialog.setLayout(new BorderLayout());
+        dialog.add(slider, BorderLayout.CENTER); // Add the slider to the dialog
+        dialog.setPreferredSize(new Dimension(500,100));
+        dialog.pack();
+
+        //Seting the icon for the Clock
+        String iconName = "resources/clock.png";
+        ImageIcon icon = new ImageIcon(iconName);
+        Image image = icon.getImage();
+        Image newImage = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+        icon = new ImageIcon(newImage);
+
+        // Create the button
+        JButton sliderButton = new JButton(icon);
+        sliderButton.addActionListener(e -> {
+            dialog.setVisible(!dialog.isVisible()); // Toggle the visibility of the dialog
+        });
+        slider.setPreferredSize(buttonSize);
+
+        // Add the button to the button panel
+        buttonPanel.add(sliderButton);
+
         // Create a panel for the split pane and the button
         JPanel splitPanePanel = new JPanel(new BorderLayout());
         splitPanePanel.add(buttonPanel, BorderLayout.WEST);

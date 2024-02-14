@@ -15,6 +15,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.ArrayList;
@@ -38,9 +41,10 @@ public class MainPanel extends JPanel {
 
     private HashMap<Sensor, XYSeriesCollection> hmap = new HashMap<>();
     private HashMap<Sensor, XYSeries> seriesmap = new HashMap<>();
+    private static final double currTime = System.currentTimeMillis();
 
 
-    final int MAX_ELEMENTS_TO_SHOW = 10;
+    private static int MAX_ELEMENTS_TO_SHOW = 10;
     public long startTime = 0;
 
     public MainPanel(Sensor[] sensors) {
@@ -59,16 +63,21 @@ public class MainPanel extends JPanel {
         }
 
         // Create default charts
-        JFreeChart lineChart1 = createChart(hmap.get(snameToObject.get("Test Sensor1")), "Test Sensor1");
-        JFreeChart lineChart2 = createChart(hmap.get(snameToObject.get("Test Sensor2")), "Test Sensor2");
-        JFreeChart lineChart3 = createChart(hmap.get(snameToObject.get("Test Sensor3")), "Test Sensor3");
-        JFreeChart lineChart4 = createChart(hmap.get(snameToObject.get("Test Sensor4")), "Test Sensor4");
+        var keys = snameToObject.keySet().toArray(new String[]{});
+        int key_ind = 0;
+        if (keys.length < 4){
+            throw new IllegalArgumentException("Too few sensors");
+        }
+        JFreeChart lineChart1 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+        JFreeChart lineChart2 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+        JFreeChart lineChart3 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+        JFreeChart lineChart4 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+
         charts = Arrays.asList(new JFreeChart[]{lineChart1, lineChart2, lineChart3, lineChart4});
         charts.stream().forEach((r)->{
                 r.getXYPlot().getRendererForDataset(r.getXYPlot().getDataset()).setSeriesPaint(0, Color.WHITE);
                 r.getXYPlot().getRenderer().setDefaultStroke(new BasicStroke(4.0f));
                 ((AbstractRenderer) r.getXYPlot().getRenderer()).setAutoPopulateSeriesStroke(false);
-
 
                 r.getXYPlot().getRangeAxis().setRange(0, 1);
                 for (Double d : snameToObject.get(r.getTitle().getText()).getRange1()){
@@ -150,7 +159,10 @@ public class MainPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 for (Sensor s : hmap.keySet()){
                     XYSeries series = seriesmap.get(s);
-                    series.add((double)(System.currentTimeMillis() - startTime)/1000, random.nextGaussian(0.5, 0.2));
+                    double data = random.nextGaussian(0.5, 0.2);
+                    series.add((double)(System.currentTimeMillis() - startTime)/1000, data);
+                    //Send data to update the CSV
+                    updateCSV(data, s, currTime);
                 }
             }
         });
@@ -234,6 +246,42 @@ public class MainPanel extends JPanel {
 
             //Change the color of the line
             chart.getXYPlot().getRendererForDataset(chart.getXYPlot().getDataset()).setSeriesPaint(0, Color.WHITE);
+        }
+    }
+
+    public static void setMaxElementsToShow(int maxElementsToShow) {
+        MAX_ELEMENTS_TO_SHOW = maxElementsToShow;
+    }
+
+    public static void updateCharts() {
+        for (JFreeChart chart : charts) {
+            for (int i = 0; i < chart.getXYPlot().getDataset().getSeriesCount(); i++) {
+                XYSeries series = ((XYSeriesCollection) chart.getXYPlot().getDataset()).getSeries(i);
+                series.setMaximumItemCount(MAX_ELEMENTS_TO_SHOW);
+            }
+        }
+    }
+
+    public void updateCSV(double data, Sensor s, double currTime){
+        try {
+            File z = new File("data/");
+
+            if (!z.exists()) {
+                z.mkdir();
+            }
+
+            File f = new File("data/" + s.name() + ".csv");
+            if (!f.exists()){
+                f.createNewFile();
+            }
+            FileWriter writer = new FileWriter(f, true);
+            writer.append(String.valueOf(Math.floorDiv( (long) (System.currentTimeMillis() - MainPanel.currTime), 1000)));
+            writer.append(",");
+            writer.append(String.valueOf(data));
+            writer.append(",\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
