@@ -1,7 +1,14 @@
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -115,7 +122,29 @@ public class LeftPanel extends JPanel {
         } else {
             sensorStatus.get(sensor.name()).setBackground(new Color(244, 67, 54)); // Subtle red
             if (sensor.isCritical()) {
-                JOptionPane.showMessageDialog(null, sensor.name() + " is in critical range!", "Critical Alert", JOptionPane.ERROR_MESSAGE);
+                new Thread(() -> {
+                    JOptionPane.showMessageDialog(null, sensor.name() + " is in critical range!", "Critical Alert", JOptionPane.ERROR_MESSAGE);
+                }).start();
+                try {
+                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("resources/alert.wav").getAbsoluteFile());
+                    AudioFormat format = audioInputStream.getFormat();
+                    SourceDataLine line = AudioSystem.getSourceDataLine(format);
+                    line.open(format);
+                    line.start();
+
+                    byte[] buffer = new byte[4096];
+                    int bytesRead = -1;
+
+                    while ((bytesRead = audioInputStream.read(buffer)) != -1) {
+                        line.write(buffer, 0, bytesRead);
+                    }
+
+                    line.drain();
+                    line.close();
+                    audioInputStream.close();
+                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
