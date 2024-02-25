@@ -5,6 +5,8 @@ import java.awt.*;
 
 public class MainFrame extends JFrame {
 
+    private static JToggleButton addSensorButton = new JToggleButton();
+
     public MainFrame() {
         //Title for App
         super("Telemetry Dashboard");
@@ -83,18 +85,26 @@ public class MainFrame extends JFrame {
 
         // Create a JDialog to act as a pop-up panel for the slider
         JDialog dialog = new JDialog();
-        dialog.setTitle("Adjust Slider");
+        dialog.setTitle("Sensor Range");
         dialog.setLayout(new BorderLayout());
         dialog.add(slider, BorderLayout.CENTER); // Add the slider to the dialog
         dialog.setPreferredSize(new Dimension(500,100));
         dialog.pack();
 
-        //Seting the icon for the Clock
+        //Setting the icon for the Clock
         String iconName = "resources/clock.png";
         ImageIcon icon = new ImageIcon(iconName);
         Image image = icon.getImage();
         Image newImage = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
         icon = new ImageIcon(newImage);
+
+        //Set the icon for multi
+        String multiIconName = "resources/multi.png";
+        ImageIcon multiIcon = new ImageIcon(multiIconName);
+        Image multiImage = multiIcon.getImage();
+        Image newMultiImage = multiImage.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+        multiIcon = new ImageIcon(newMultiImage);
+        addSensorButton.setIcon(multiIcon);
 
         // Create the button
         JButton sliderButton = new JButton(icon);
@@ -105,6 +115,9 @@ public class MainFrame extends JFrame {
 
         // Add the button to the button panel
         buttonPanel.add(sliderButton);
+        buttonPanel.add(Box.createVerticalStrut(10)); // Add some space between the buttons
+        //Add the the multi button
+        buttonPanel.add(addSensorButton);
 
         // Create a panel for the split pane and the button
         JPanel splitPanePanel = new JPanel(new BorderLayout());
@@ -114,6 +127,15 @@ public class MainFrame extends JFrame {
         // Set layout and add split pane panel to the frame
         setLayout(new BorderLayout());
         add(splitPanePanel, BorderLayout.CENTER);
+    }
+
+    public static boolean getMultiStatus(){
+        if (addSensorButton.isSelected()){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
     
 }

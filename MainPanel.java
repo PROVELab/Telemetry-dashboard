@@ -28,6 +28,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/*
+ * Add the ability to dynimically change range of every graph
+ */
+
 public class MainPanel extends JPanel {
 
     private ChartPanel chartPanel1;
@@ -36,11 +40,11 @@ public class MainPanel extends JPanel {
     private ChartPanel chartPanel4;
     private static List<JFreeChart> charts = new ArrayList<>();
     private static List<JPanel> chartPanels = new ArrayList<>();
+    private static List<ChartPanel> chartPanelList = new ArrayList<>();
     
     private HashMap<String, Sensor> snameToObject = new HashMap<>();
 
-    private HashMap<Sensor, XYSeriesCollection> hmap = new HashMap<>();
-    private HashMap<Sensor, XYSeries> seriesmap = new HashMap<>();
+    private HashMap<Sensor, SeriesData> seriesmap = new HashMap<>();
     private static final double currTime = System.currentTimeMillis();
 
 
@@ -58,8 +62,8 @@ public class MainPanel extends JPanel {
             XYSeriesCollection xysc = new XYSeriesCollection(){{
                 addSeries(ser);
             }};
-            hmap.put(s, xysc);
-            seriesmap.put(s, ser);
+            SeriesData sd = new SeriesData(xysc, ser);
+            seriesmap.put(s, sd);
         }
 
         // Create default charts
@@ -68,10 +72,10 @@ public class MainPanel extends JPanel {
         if (keys.length < 4){
             throw new IllegalArgumentException("Too few sensors");
         }
-        JFreeChart lineChart1 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
-        JFreeChart lineChart2 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
-        JFreeChart lineChart3 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
-        JFreeChart lineChart4 = createChart(hmap.get(snameToObject.get(keys[key_ind])), keys[key_ind++]);
+        JFreeChart lineChart1 = createChart(seriesmap.get(snameToObject.get(keys[key_ind])).getXYSeriesCollection(), keys[key_ind++]);
+        JFreeChart lineChart2 = createChart(seriesmap.get(snameToObject.get(keys[key_ind])).getXYSeriesCollection(), keys[key_ind++]);
+        JFreeChart lineChart3 = createChart(seriesmap.get(snameToObject.get(keys[key_ind])).getXYSeriesCollection(), keys[key_ind++]);
+        JFreeChart lineChart4 = createChart(seriesmap.get(snameToObject.get(keys[key_ind])).getXYSeriesCollection(), keys[key_ind++]);
 
         charts = Arrays.asList(new JFreeChart[]{lineChart1, lineChart2, lineChart3, lineChart4});
         charts.stream().forEach((r)->{
@@ -79,7 +83,9 @@ public class MainPanel extends JPanel {
                 r.getXYPlot().getRenderer().setDefaultStroke(new BasicStroke(4.0f));
                 ((AbstractRenderer) r.getXYPlot().getRenderer()).setAutoPopulateSeriesStroke(false);
 
-                r.getXYPlot().getRangeAxis().setRange(0, 1);
+                //Auto adjust value scalling to where values are
+                ((NumberAxis) r.getXYPlot().getRangeAxis()).setAutoRangeIncludesZero(false);
+
                 for (Double d : snameToObject.get(r.getTitle().getText()).getRange1()){
                     ValueMarker marker = new ValueMarker(d);
                     marker.setPaint(Color.YELLOW);
@@ -99,6 +105,16 @@ public class MainPanel extends JPanel {
         chartPanel2 = new ChartPanel(lineChart2);
         chartPanel3 = new ChartPanel(lineChart3);
         chartPanel4 = new ChartPanel(lineChart4);
+        chartPanelList = Arrays.asList(new ChartPanel[]{chartPanel1, chartPanel2, chartPanel3, chartPanel4});
+        
+        //Stop some bad stuff in graphs
+        for (ChartPanel cp : chartPanelList){
+            cp.setDomainZoomable(false); 
+            cp.setRangeZoomable(false); 
+            cp.setHorizontalAxisTrace(false);
+            cp.setVerticalAxisTrace(false);
+        }
+
         chartPanels = Arrays.asList(new JPanel[]{chartPanel1, chartPanel2, chartPanel3, chartPanel4});
 
         chartPanels.stream().forEach((s)->s.setBorder(new LineBorder(Color.BLACK)));
@@ -119,13 +135,29 @@ public class MainPanel extends JPanel {
                     // Get the chart panel where the data was dropped
                     ChartPanel droppedChartPanel = (ChartPanel) dtde.getDropTargetContext().getComponent();
         
-                    // Update the chart with the dropped data
+                     // Get the chart and the sensor
                     JFreeChart chart = droppedChartPanel.getChart();
-                    chart.setTitle(droppedData);
-                    chart.getXYPlot().setDataset(hmap.get(snameToObject.get(droppedData)));
-                    ((NumberAxis) (chart.getXYPlot().getDomainAxis())).setNumberFormatOverride(NumberFormat.getNumberInstance());
-                    
                     Sensor s = snameToObject.get(droppedData);
+
+                    // Check the state of the toggle button
+                    if (MainFrame.getMultiStatus()) {
+                        // Add the sensor data to the existing graph
+                        XYSeriesCollection dataset = (XYSeriesCollection) chart.getXYPlot().getDataset();
+                        dataset.addSeries(seriesmap.get(s).getXYSeries());
+                        chart.setTitle("Multiple Sensors"); 
+                    } else {
+                        // Replace the existing graph with the new sensor data
+                        XYSeriesCollection dataset = new XYSeriesCollection();
+                        dataset.addSeries(seriesmap.get(s).getXYSeries());
+                        chart.getXYPlot().setDataset(dataset);
+                        chart.setTitle(droppedData);
+                    }
+
+                    // Update the chart title and format
+
+                    ((NumberAxis) (chart.getXYPlot().getDomainAxis())).setNumberFormatOverride(NumberFormat.getNumberInstance());
+                    ((NumberAxis) (chart.getXYPlot().getRangeAxis())).setNumberFormatOverride(NumberFormat.getNumberInstance());
+
                     chart.getXYPlot().clearRangeMarkers();
                     // add yellow ranges
                     for (Double d : s.getRange1()){
@@ -157,9 +189,9 @@ public class MainPanel extends JPanel {
         Timer timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (Sensor s : hmap.keySet()){
-                    XYSeries series = seriesmap.get(s);
-                    double data = random.nextGaussian(0.5, 0.01);
+                for (Sensor s : seriesmap.keySet()){
+                    XYSeries series = seriesmap.get(s).getXYSeries();
+                    double data = random.nextGaussian(10, 0.5);
                     series.add((double)(System.currentTimeMillis() - startTime)/1000, data);
                     //Send data to update the CSV
                     updateCSV(data, s, currTime);
@@ -173,8 +205,8 @@ public class MainPanel extends JPanel {
 
         Runnable task = () -> {
             try {
-                for (Sensor s : hmap.keySet()){
-                    XYSeries series = seriesmap.get(s);
+                for (Sensor s : seriesmap.keySet()){
+                    XYSeries series = seriesmap.get(s).getXYSeries();
                     if (series != null && series.getItemCount() > 0) {
                         LeftPanel.setStatusIndicator(s, series.getY(series.getItemCount()-1).doubleValue());
                     }
