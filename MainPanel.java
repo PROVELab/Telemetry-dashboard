@@ -83,6 +83,12 @@ public class MainPanel extends JPanel {
                 r.getXYPlot().getRenderer().setDefaultStroke(new BasicStroke(4.0f));
                 ((AbstractRenderer) r.getXYPlot().getRenderer()).setAutoPopulateSeriesStroke(false);
 
+                //Y axis label
+                r.getXYPlot().getRangeAxis().setLabel(snameToObject.get(r.getTitle().getText()).yLabel());
+
+                //X axis label
+                r.getXYPlot().getDomainAxis().setLabel("Time (s)");
+
                 //Auto adjust value scalling to where values are
                 ((NumberAxis) r.getXYPlot().getRangeAxis()).setAutoRangeIncludesZero(false);
 
@@ -101,10 +107,10 @@ public class MainPanel extends JPanel {
         );
         
         // Create chart panels
-        chartPanel1 = new ChartPanel(lineChart1);
-        chartPanel2 = new ChartPanel(lineChart2);
-        chartPanel3 = new ChartPanel(lineChart3);
-        chartPanel4 = new ChartPanel(lineChart4);
+        chartPanel1 = new CustomChartPanel(lineChart1);
+        chartPanel2 = new CustomChartPanel(lineChart2);
+        chartPanel3 = new CustomChartPanel(lineChart3);
+        chartPanel4 = new CustomChartPanel(lineChart4);
         chartPanelList = Arrays.asList(new ChartPanel[]{chartPanel1, chartPanel2, chartPanel3, chartPanel4});
         
         //Stop some bad stuff in graphs
@@ -171,6 +177,12 @@ public class MainPanel extends JPanel {
                         marker.setPaint(Color.RED);
                         chart.getXYPlot().addRangeMarker(marker);
                     }
+
+                    //Update y axis label
+                    chart.getXYPlot().getRangeAxis().setLabel(s.yLabel());
+
+                    //X axis label
+                    chart.getXYPlot().getDomainAxis().setLabel("Time (s)");
 
                     // Repaint the chart to apply the changes
                     droppedChartPanel.repaint();
@@ -283,6 +295,10 @@ public class MainPanel extends JPanel {
 
     public static void setMaxElementsToShow(int maxElementsToShow) {
         MAX_ELEMENTS_TO_SHOW = maxElementsToShow;
+    }
+
+    public static int getMaxElementsToShow() {
+        return MAX_ELEMENTS_TO_SHOW;
     }
 
     public static void updateCharts() {

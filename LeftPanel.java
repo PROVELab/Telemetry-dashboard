@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.awt.dnd.*;
 import java.awt.image.BufferedImage;
 
-record Sensor(String name, String range1, String range2, boolean isCritical) {
+record Sensor(String name, String range1, String range2, boolean isCritical, String yLabel) {
     Double[] getRange1(){
         Double d[]  = new Double[2];
         int i = 0;
@@ -62,11 +62,12 @@ public class LeftPanel extends JPanel {
                 String range1 = arr[1];
                 String range2 = arr[2];
                 String critical = arr[3];
+                String yLabel = arr[4];
                 critical = critical.strip();
 
                 boolean isCritical = (Integer.parseInt(critical) == 1) ? true : false;
 
-                Sensor s = new Sensor(sensorLabel.getText(), range1, range2, isCritical);
+                Sensor s = new Sensor(sensorLabel.getText(), range1, range2, isCritical, yLabel);
                 sensorList.add(s);
                 miniElement.add(sensorLabel, BorderLayout.CENTER);
 

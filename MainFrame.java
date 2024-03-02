@@ -77,7 +77,7 @@ public class MainFrame extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 JSlider source = (JSlider)e.getSource();
                 if (!source.getValueIsAdjusting()) {
-                    MainPanel.setMaxElementsToShow(source.getValue());
+                    MainPanel.setMaxElementsToShow((MainPanel.getMaxElementsToShow() + source.getValue() > 100)  ? 100: MainPanel.getMaxElementsToShow() + source.getValue());
                     MainPanel.updateCharts();
                 }
             }
